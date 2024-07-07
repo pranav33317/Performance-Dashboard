@@ -1,0 +1,42 @@
+import sys
+import os
+import socket
+import psutil
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import QIcon
+import sqlite3
+from cryptography.fernet import Fernet
+# PyQt application window
+class SystemPerformanceDashboard(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('System Performance Dashboard')
+        self.setWindowIcon(QIcon('icon.png'))
+
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+
+        self.layout = QVBoxLayout(self.central_widget)
+        self.cpu_label = QLabel('CPU Usage:')
+        self.memory_label = QLabel('Memory Usage:')
+        self.layout.addWidget(self.cpu_label)
+        self.layout.addWidget(self.memory_label)
+
+        # Timer to update metrics every second
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_metrics)
+        self.timer.start(1000)  # Update every 1 second
+
+    def update_metrics(self):
+        cpu_usage, memory_usage = collect_system_metrics()
+        self.cpu_label.setText(f'CPU Usage: {cpu_usage}%')
+        self.memory_label.setText(f'Memory Usage: {memory_usage}%')
+
+# Main function to run the application
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = SystemPerformanceDashboard()
+    window.show()
+    sys.exit(app.exec_())
